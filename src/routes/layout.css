@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+::-webkit-scrollbar {
+	width: 8px;
+	background-color: #1a1c23;
+}
+::-webkit-scrollbar-thumb {
+	background-color: #2c2e36;
+	border-radius: 4px;
+}
