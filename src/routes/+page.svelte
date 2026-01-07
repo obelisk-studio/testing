@@ -1,18 +1,21 @@
 <script lang="ts">
 	import ModCard from '$lib/ModCard.svelte';
+	import ModDrawer from '$lib/ModDrawer.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
 	import VersionSelector from '$lib/VersionSelector.svelte';
 	import SettingsModal from '$lib/SettingsModal.svelte';
 
 	import logo from '$lib/assets/icon-transparent.png';
+	import type { Mod } from '$lib/types';
 
 	let folderPath = $state('');
 	let selectedLoader = $state('Fabric');
 	let selectedVersion = $state('1.21.11');
 	let isScanning = $state(false);
-	let viewMode = $state('grid');
+	let viewMode = $state<'grid' | 'list'>('grid');
 	let searchQuery = $state('');
 	let activeFilter = $state('all');
+	let selectedMod = $state<Mod | null>(null);
 
 	let hasFolder = $derived(folderPath.length > 0);
 
@@ -36,8 +39,8 @@
 	]);
 
 	let processedMods = $derived(
-		allMods.map((mod) => {
-			let status = 'compatible';
+		allMods.map((mod): Mod => {
+			let status: Mod['status'] = 'compatible';
 			if (mod.loader !== selectedLoader) status = 'conflict';
 			if (mod.name === 'Jade') status = 'warning';
 			return { ...mod, status };
@@ -66,6 +69,14 @@
 
 	function handleValidate() {
 		isScanning = true;
+	}
+
+	function handleModClick(mod: Mod) {
+		selectedMod = mod;
+	}
+
+	function handleCloseDrawer() {
+		selectedMod = null;
 	}
 </script>
 
@@ -311,12 +322,16 @@
 						: 'flex flex-col gap-2'}
 				>
 					{#each filteredMods as mod (mod.name)}
-						<ModCard {mod} {viewMode} />
+						<ModCard {mod} {viewMode} onClick={handleModClick} />
 					{/each}
 				</div>
 			</div>
 		{/if}
 	</div>
 </div>
+
+{#if selectedMod}
+	<ModDrawer mod={selectedMod} onClose={handleCloseDrawer} />
+{/if}
 
 <SettingsModal />

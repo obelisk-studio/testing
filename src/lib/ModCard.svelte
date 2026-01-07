@@ -1,15 +1,19 @@
 <script lang="ts">
-	let { mod, viewMode } = $props();
+	import type { Mod } from '$lib/types';
+
+	let { mod, viewMode, onClick }: { mod: Mod; viewMode: 'grid' | 'list'; onClick?: (mod: Mod) => void } =
+		$props();
 </script>
 
 <div
-	class="rounded-sm border p-4 transition-colors {viewMode === 'list'
+	class="cursor-pointer rounded-sm border p-4 transition-colors hover:brightness-110 {viewMode === 'list'
 		? 'flex items-center gap-4'
 		: 'flex flex-col'}"
 	style="
 		background-color: var(--bg-card);
 		border-color: var(--border-color);
 	"
+	onclick={() => onClick?.(mod)}
 >
 	<div class="mb-2 flex items-center justify-between {viewMode === 'list' ? 'mb-0' : ''}">
 		{#if mod.status === 'compatible'}
@@ -64,6 +68,7 @@
 			font-bold text-green-800 transition-colors
 			hover:bg-green-100
 			dark:border-[#2e4c32] dark:bg-[#1b2e1e] dark:text-[#81c784] dark:hover:bg-[#233b27]"
+			onclick={(e) => e.stopPropagation()}
 		>
 			Modrinth
 		</button>
@@ -73,6 +78,7 @@
 			font-bold text-orange-800 transition-colors
 			hover:bg-orange-100
 			dark:border-[#4c342e] dark:bg-[#2e201b] dark:text-[#ffb74d] dark:hover:bg-[#3d2a24]"
+			onclick={(e) => e.stopPropagation()}
 		>
 			CurseForge
 		</button>
