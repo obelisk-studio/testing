@@ -1,4 +1,3 @@
-// src/lib/settings.svelte.ts
 class SettingState {
 	isOpen = $state(false);
 	activeTheme = $state('dark');

@@ -2,8 +2,9 @@
 	import ModCard from '$lib/ModCard.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
 	import VersionSelector from '$lib/VersionSelector.svelte';
-	import logo from '$lib/assets/icon-transparent.png';
 	import SettingsModal from '$lib/SettingsModal.svelte';
+
+	import logo from '$lib/assets/icon-transparent.png';
 
 	let folderPath = $state('');
 	let selectedLoader = $state('Fabric');
@@ -11,6 +12,7 @@
 	let isScanning = $state(false);
 	let viewMode = $state('grid');
 	let searchQuery = $state('');
+	let activeFilter = $state('all');
 
 	let hasFolder = $derived(folderPath.length > 0);
 
@@ -43,7 +45,12 @@
 	);
 
 	let filteredMods = $derived(
-		processedMods.filter((mod) => mod.name.toLowerCase().includes(searchQuery.toLowerCase()))
+		processedMods
+			.filter((mod) => mod.name.toLowerCase().includes(searchQuery.toLowerCase()))
+			.filter((mod) => {
+				if (activeFilter === 'all') return true;
+				return mod.status === activeFilter;
+			})
 	);
 
 	let stats = $derived({
@@ -97,9 +104,9 @@
 		></div>
 
 		<div class="flex items-baseline gap-2">
-			<h1 class="text-lg font-bold tracking-tight" style="color: var(--text-main);">GLACIER</h1>
+			<h1 class="text-lg font-bold tracking-tight" style="color: var(--text-main);">OBELISK</h1>
 			<span class="text-xs font-medium tracking-wide uppercase" style="color: var(--text-sec);"
-				>Mod Manager</span
+				>STUDIO</span
 			>
 		</div>
 	</div>
@@ -153,7 +160,7 @@
 		class="flex h-9 items-center gap-2 rounded-sm px-6 text-sm font-medium text-white shadow-lg transition-colors hover:brightness-110"
 		style="background-color: var(--accent); shadow-color: var(--accent);"
 	>
-		<i class="fa-solid fa-play text-xs"></i>
+		<i class="fa-solid fa-bars-progress"></i>
 		Validate Mods
 	</button>
 </div>
@@ -181,7 +188,7 @@
 					No Mod Folder Selected
 				</h2>
 				<p class="max-w-md text-center" style="color: var(--text-sec);">
-					Select your Minecraft mods folder above to get started. Glacier will scan for conflicts
+					Select your Minecraft mods folder above to get started. Obelisk will scan for conflicts
 					and suggest fixes instantly.
 				</p>
 			</div>
@@ -204,22 +211,47 @@
 				class="mb-6 flex items-center justify-between rounded-sm border p-4"
 				style="background-color: var(--bg-card); border-color: var(--border-color);"
 			>
-				<div class="flex items-center gap-6 text-sm font-medium">
-					<div class="flex items-center" style="color: var(--text-main);">
+				<div class="flex items-center gap-2 text-sm font-medium">
+					<button
+						onclick={() => (activeFilter = 'all')}
+						class="flex items-center rounded-md px-3 py-1 transition-colors hover:bg-white/5"
+						style="color: var(--text-main); {activeFilter === 'all'
+							? 'background-color: rgba(255,255,255,0.1); border: 1px solid var(--text-main);'
+							: 'border: 1px solid transparent;'}"
+					>
 						<span class="mr-2 text-xl leading-none font-bold">{stats.total}</span>
 						<span>Total Mods</span>
-					</div>
-					<div class="flex items-center text-green-400">
+					</button>
+					<button
+						onclick={() => (activeFilter = 'compatible')}
+						class="flex items-center rounded-md px-3 py-1 text-green-400 transition-colors hover:bg-white/5"
+						style={activeFilter === 'compatible'
+							? 'background-color: rgba(74, 222, 128, 0.1);  border: 1px solid rgb(74, 222, 128);'
+							: 'border: 1px solid transparent;'}
+					>
 						<i class="fa-solid fa-check mr-2 text-xs"></i>
 						<span>{stats.compatible} Compatible</span>
-					</div>
-					<div class="flex items-center text-red-400">
-						<i class="fa-solid fa-xmark mr-2 text-xs"></i> <span>{stats.conflicts} Conflicts</span>
-					</div>
-					<div class="flex items-center text-yellow-400">
+					</button>
+					<button
+						onclick={() => (activeFilter = 'conflict')}
+						class="flex items-center rounded-md px-3 py-1 text-red-400 transition-colors hover:bg-white/5"
+						style={activeFilter === 'conflict'
+							? 'background-color: rgba(248, 113, 113, 0.1); border: 1px solid rgb(248, 113, 113);'
+							: 'border: 1px solid transparent;'}
+					>
+						<i class="fa-solid fa-xmark mr-2 text-xs"></i>
+						<span>{stats.conflicts} Conflicts</span>
+					</button>
+					<button
+						onclick={() => (activeFilter = 'warning')}
+						class="flex items-center rounded-md px-3 py-1 text-yellow-400 transition-colors hover:bg-white/5"
+						style={activeFilter === 'warning'
+							? 'background-color: rgba(250, 204, 21, 0.1); border: 1px solid rgb(250, 204, 21);'
+							: 'border: 1px solid transparent;'}
+					>
 						<i class="fa-solid fa-triangle-exclamation mr-2 text-xs"></i>
 						<span>{stats.warnings} Warnings</span>
-					</div>
+					</button>
 				</div>
 
 				<div class="flex gap-3">
