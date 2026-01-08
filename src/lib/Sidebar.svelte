@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { Settings } from '$lib/settings.svelte.js';
+	import type { PageId } from '$lib/types';
 
-	let { activePage = 'dashboard' } = $props();
+	let { activePage, onNavigate }: { activePage: PageId; onNavigate: (pageId: PageId) => void } =
+		$props();
 </script>
 
-{#snippet navItem(id: string, icon: string, label: string)}
+{#snippet navItem(id: PageId, icon: string, label: string)}
 	<button
-		class="mb-1 flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium transition-colors"
+		onclick={() => onNavigate(id)}
+		class="mb-1 flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium transition-colors hover:bg-white/5"
 		style={activePage === id
 			? 'border-left: 2px solid var(--accent); background-color: rgba(59, 130, 246, 0.1); color: var(--accent);'
 			: 'border-left: 2px solid transparent; color: var(--text-sec);'}

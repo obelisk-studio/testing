@@ -1,5 +1,9 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition'; // Animation for smooth opening
+	// If you don't have a clickOutside action, I provided a simple alternative below.
+
 	let { value = $bindable() } = $props();
+	let isOpen = $state(false);
 
 	const minecraftVersions = [
 		'1.21.11',
@@ -37,24 +41,68 @@
 		'1.16.1',
 		'1.16'
 	];
+
+	function toggle() {
+		isOpen = !isOpen;
+	}
+
+	function select(version: string) {
+		value = version;
+		isOpen = false;
+	}
+
+	// Simple click outside handler (if you don't want a utility file)
+	function handleBackdropClick() {
+		isOpen = false;
+	}
 </script>
 
-<div class="relative">
-	<select
-		bind:value
-		class="h-9 w-32 appearance-none rounded-sm border pr-8 pl-3 text-sm focus:border-blue-500 focus:outline-none"
+<div class="relative w-32 font-sans text-sm">
+	<button
+		onclick={toggle}
+		class="flex h-8 w-full items-center justify-between rounded-sm border px-3 transition-colors hover:brightness-110"
 		style="
-			background-color: var(--bg-input);
-			border-color: var(--border-color);
-			color: var(--text-main);
-			/* FORCE HIDE DEFAULT ARROW */
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			appearance: none;
-		"
+            background-color: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        "
 	>
-		{#each minecraftVersions as version (version)}
-			<option value={version}>{version}</option>
-		{/each}
-	</select>
+		<span class="truncate">{value}</span>
+		<i
+			class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 {isOpen
+				? 'rotate-180'
+				: ''}"
+			style="color: var(--text-sec);"
+		></i>
+	</button>
+
+	{#if isOpen}
+		<div class="fixed inset-0 z-40" onclick={handleBackdropClick}></div>
+	{/if}
+
+	{#if isOpen}
+		<div
+			transition:slide={{ duration: 200, axis: 'y' }}
+			class="absolute top-full left-0 z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-sm border shadow-xl"
+			style="
+                background-color: var(--bg-card); /* Dark background */
+                border-color: var(--border-color);
+            "
+		>
+			{#each minecraftVersions as version}
+				<button
+					onclick={() => select(version)}
+					class="w-full px-3 py-1.5 text-left transition-colors hover:bg-white/5"
+					style="
+                        color: {value === version ? 'var(--accent)' : 'var(--text-main)'};
+                        background-color: {value === version
+						? 'rgba(255,255,255,0.05)'
+						: 'transparent'};
+                    "
+				>
+					{version}
+				</button>
+			{/each}
+		</div>
+	{/if}
 </div>
